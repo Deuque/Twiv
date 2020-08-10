@@ -2,34 +2,53 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'dart:ui';
+import 'package:Twiv/services/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-//import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-//import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import 'package:Twiv/dash.dart';
-//import 'package:system_alert_window/models/system_window_body.dart';
-//import 'package:system_alert_window/models/system_window_footer.dart';
-//import 'package:system_alert_window/system_alert_window.dart';
+import 'package:path_provider/path_provider.dart' as pathProvider;
 
-void main() {
-  runApp(MyApp());
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  final appDocumentDirectory =
+      await pathProvider.getApplicationDocumentsDirectory();
+
+  Hive.init(appDocumentDirectory.path);
+
+  final settings = await Hive.openBox('settings');
+  bool isLightTheme = settings.get('isLightTheme') ?? true;
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => ThemeProvider(isLightTheme: isLightTheme)),
+  ], child: AppStart()));
+
+}
+
+class AppStart extends StatelessWidget {
+  const AppStart({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    return MyApp(
+      themeProvider: themeProvider,
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
+  final ThemeProvider themeProvider;
 
+  const MyApp({Key key, @required this.themeProvider}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Twiv',
-      theme: ThemeData(
-        primaryColorDark: Color(0xFF214478),
-        primaryColor: Color(0xFF214478),
-        accentColor: Color(0xFF214478),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: themeProvider.themeData().copyWith(textTheme: GoogleFonts.varelaRoundTextTheme(Theme.of(context).textTheme)),
       home: Dash(),
     );
   }

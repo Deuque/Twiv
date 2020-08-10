@@ -16,7 +16,7 @@ public class ActionReceiver extends BroadcastReceiver {
         String action=intent.getStringExtra("action");
         if(action.equals("daction")){
 
-            myresult.success("downloadsssss");
+            myresult.success("downloads");
         }
         else if(action.equals("action2")){
             performAction2();

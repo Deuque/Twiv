@@ -91,7 +91,8 @@ public class MyActivity extends FlutterActivity  {
         NotificationManagerCompat notificationManagerCompat;
         notificationManagerCompat = NotificationManagerCompat.from(this);
         Notification notification = new NotificationCompat.Builder(this,CHANNEL_1_ID)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.download)
+                .setColor(getResources().getColor(R.color.aux1))
                 .setContentTitle("Twiv Assitant")
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

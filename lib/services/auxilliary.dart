@@ -8,33 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
 // my colors
-Color get aux1 => Color(0xFFFFFFFF);
-
-Color get aux11 => Colors.white38;
-
-Color get aux12 => Colors.white70;
-
-Color get aux2 => Color(0xFFE61111);
-
-Color get aux22 => Color(0xFFAF0D0D);
-
-Color get aux3 => Color(0xFFEEA3A3);
-
-Color get aux33 => Color(0xFFFCF4F4);
-
-Color get aux4 => Color(0xFF435D6B);
-Color get aux41 => Color(0xFFF2F5F8);
-Color get aux42 => Colors.grey;
-
-Color get aux5 => Color(0xFFFBFBFB);
-
-Color get aux6 => Colors.black87;
-
-Color get aux7 => Color(0xFFD4EBFE);
-Color get aux77 => Color(0xFF1E88E5);
-
-Color get aux8 => Color(0xFFE5E5E5);
-
 Color get mytrans => Color(0x99000000);
 
 
@@ -53,38 +26,31 @@ dateFormatter2(String time) {
 }
 
 //toast builder
-void showToast(BuildContext context, text, {snackaction}) {
-  final scaffold = Scaffold.of(context);
-  scaffold.showSnackBar(
-    SnackBar(
-      backgroundColor: Colors.black87,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8)
-      ),
-      content: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Icon(
-            Icons.check_circle,
-            color: aux1,
-          ),
-          SizedBox(
-            width: 6,
-          ),
-          Text(
-            text,
-            textAlign: TextAlign.start,
-            style: GoogleFonts.asap(
-                color: aux1, fontWeight: FontWeight.w500, fontSize: 15),
-          ),
-        ],
-      ),
-      action: SnackBarAction(
-          textColor: aux2, label: 'VIEW CART', onPressed: snackaction),
-    ),
-  );
-}
+//void showToast(BuildContext context, text, {snackaction}) {
+//  final scaffold = Scaffold.of(context);
+//  scaffold.showSnackBar(
+//    SnackBar(
+//      backgroundColor: Color(0xFF214478),
+//      behavior: SnackBarBehavior.floating,
+//      shape: RoundedRectangleBorder(
+//        borderRadius: BorderRadius.circular(8)
+//      ),
+//      content: Row(
+//        crossAxisAlignment: CrossAxisAlignment.center,
+//        children: <Widget>[
+//          Text(
+//            text,
+//            textAlign: TextAlign.start,
+//            style: GoogleFonts.varelaRound(
+//                color: Colors.white.withOpacity(.85), fontWeight: FontWeight.w500, fontSize: 15),
+//          ),
+//        ],
+//      ),
+////      action: SnackBarAction(
+////          textColor: aux2, label: 'VIEW CART', onPressed: snackaction),
+//    ),
+//  );
+//}
 
 //money resolver
 moneyResolver(String s) {
@@ -109,9 +75,16 @@ ProgressDialog getDialog(BuildContext context) {
       borderRadius: 10.0,
       backgroundColor: Colors.white,
       progressWidget: Container(
-        padding: EdgeInsets.all(15),
-        child: CircularProgressIndicator(),
-      ),
+                      height: 40,
+                      width: 40,
+                      child: Center(
+                          child: Image.asset(
+                        'assets/loading.gif',
+                        height: 30,
+                        width: 30,
+                      )),
+                    ),
+
       elevation: 10.0,
       insetAnimCurve: Curves.easeInOut,
       progress: 0.0,

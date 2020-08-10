@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:Twiv/services/theme_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:Twiv/services/auxilliary.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -20,10 +22,10 @@ class MediaItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeProvider tp = Provider.of<ThemeProvider>(context);
     double height = 80;
     double width = 95;
     double leftCurve = 8.5;
-    Fluttertoast.showToast(msg: file.extension);
     if (file.extension == 'mp4' || file.extension == 'mkv') {
 
       thumbnailRequest = new ThumbnailRequest(
@@ -81,12 +83,9 @@ class MediaItem extends StatelessWidget {
         height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(leftCurve)),
-          color: aux1,
+          color: tp.aux1,
           boxShadow: [
-            BoxShadow(
-                color: aux42.withOpacity(.5),
-                offset: Offset(0.0, 1.1),
-                blurRadius: 8.0)
+           tp.myShadow
           ],
         ),
         child: Row(
@@ -149,7 +148,7 @@ class MediaItem extends StatelessWidget {
                         color: mytrans,
                         child: Icon(
                           type=='video'?Icons.play_arrow:Icons.gif,
-                          color: aux1,
+                          color: Colors.white.withOpacity(0.9),
                           size: 14,
                         ),
                       ),
@@ -170,34 +169,33 @@ class MediaItem extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.varelaRound(
-                          color: aux4, fontWeight: FontWeight.w500, fontSize: 14),
+                          color: tp.aux4, fontWeight: FontWeight.w500, fontSize: 14),
                     ),
                     SizedBox(height: 8,),
                 Text(
                   'Modified: ${dateFormatter(file.lastModifiedSync().toString())}',
                   style: GoogleFonts.varelaRound(
-                      color: aux42, fontWeight: FontWeight.w400, fontSize: 12),
+                      color: tp.aux42, fontWeight: FontWeight.w400, fontSize: 12),
                 ),
                     SizedBox(height: 4,),
                     FutureBuilder<int>(
                       future: file.length(),
                       builder: (context, snapshot) {
-                        Fluttertoast.showToast(msg: '${snapshot.data}');
                         String size='0';
                         double nsize = 0;
                         if(snapshot.hasData){
-                          nsize = snapshot.data /(1024*1024);
-                          size = '${nsize.toStringAsFixed(1)}mb';
-                          if(nsize<1000){
-                            nsize = snapshot.data /(1024);
-                            size = '${nsize.toStringAsFixed(1)}kb';
+                          nsize = snapshot.data /(1024);
+                          size = '${nsize.toStringAsFixed(1)}kb';
+                          if(nsize>1000){
+                            nsize = snapshot.data /(1024*1024);
+                            size = '${nsize.toStringAsFixed(1)}mb';
                           }
 
                         }
                         return Text(
                           'Size: $size',
                           style: GoogleFonts.varelaRound(
-                              color: aux42, fontWeight: FontWeight.w400, fontSize: 12),
+                              color: tp.aux42, fontWeight: FontWeight.w400, fontSize: 12),
                         );
                       }
                     ),
@@ -213,7 +211,7 @@ class MediaItem extends StatelessWidget {
               onPressed: (){
                 ShareExtend.share(file.path, type);
               },
-              icon: Icon(Icons.share,color: aux4,size: 17,),
+              icon: Icon(Icons.share,color: tp.aux4,size: 17,),
             ),
             SizedBox(width: 5,)
           ],

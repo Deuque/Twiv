@@ -38,8 +38,9 @@ dependencies:
   video_thumbnail: ^0.2.2
   share_extend: ^1.1.9
   receive_sharing_intent: ^1.4.0+2
-  flutter_isolate: ^1.0.0+14
-
+  hive: ^1.4.2
+  provider: ^4.3.1
+  twitter_api: ^0.1.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -67,12 +68,13 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/bg1.jpg
-    - assets/bg2.png
-    - assets/download.png
-    - assets/empty.png
-    - assets/loading.gif
-    - assets/icon.png
+    - assets/
+#    - assets/bg1.jpg
+#    - assets/bg2.png
+#    - assets/download.png
+#    - assets/empty.png
+#    - assets/loading.gif
+#    - assets/icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
