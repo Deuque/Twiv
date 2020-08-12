@@ -17,8 +17,8 @@ samples, guidance on mobile development, and a full API reference.
 
 <br/>
 <br/>
-<img src="images3/t1.jpeg" height="420"/>
-<img src="images3/t2.jpeg" height="420"/>
-<img src="images3/t3.jpeg" height="420"/>
-<img src="images3/t4.jpeg" height="420"/>
-<img src="images3/t5.jpeg" height="420"/>
+<img src="images3/t1.png" height="420"/>
+<img src="images3/t2.png" height="420"/>
+<img src="images3/t3.png" height="420"/>
+<img src="images3/t4.png" height="420"/>
+<img src="images3/t5.png" height="420"/>
