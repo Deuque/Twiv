@@ -1,6 +1,8 @@
 
 import 'dart:io';
+import 'dart:math';
 
+import 'package:Twiv/models/video_variant.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:twitter_api/twitter_api.dart';
 
@@ -40,7 +42,7 @@ class ApiService {
      );
    }
 
-   static Future<ApiResponse<String>> resolveUrl(String url) async{
+   static Future<ApiResponse<String>> resolveUrl(String url, int quality) async{
      ApiResponse<String> apiResponse;
      String rurl = '';
      try{
@@ -65,7 +67,18 @@ class ApiService {
      if(res.statusCode == 200){
        var jsonData = json.decode(res.body);
        try{
+         var jsonvariants = jsonData['extended_entities']['media'][0]['video_info']['variants'];
          download_url = jsonData['extended_entities']['media'][0]['video_info']['variants'][1]['url'];
+         List<VVariant> videos = [];
+         for(var item in jsonvariants){
+           if(item['content_type']!='video/mp4')continue;
+             VVariant v = VVariant.videofromJson(item);
+              videos.add(v);
+         }
+         videos.sort((a,b)=>a.size.compareTo(b.size));
+         Random random = new Random();
+         download_url = videos[quality==0? random.nextInt(videos.length): quality==1? 0 : videos.length-1].url;
+
        }catch(e){
          try {
            download_url =

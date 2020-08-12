@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'dart:ui';
+import 'package:Twiv/services/quality_provider.dart';
 import 'package:Twiv/services/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,8 +22,10 @@ void main() async{
 
   final settings = await Hive.openBox('settings');
   bool isLightTheme = settings.get('isLightTheme') ?? true;
+  int qual= settings.get('quality')??0;
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => ThemeProvider(isLightTheme: isLightTheme)),
+    ChangeNotifierProvider(create: (_) => QualityProvider(quality: qual))
   ], child: AppStart()));
 
 }

@@ -1,3 +1,4 @@
+import 'package:Twiv/services/quality_provider.dart';
 import 'package:Twiv/services/theme_provider.dart';
 import 'package:Twiv/services/toggle.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ class _SettingsState extends State<Settings>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<String> options =['random','lowest','best'];
+  String dropdown='';
 
   @override
   void initState() {
@@ -26,7 +29,8 @@ class _SettingsState extends State<Settings>
   @override
   Widget build(BuildContext context) {
     ThemeProvider tp = Provider.of<ThemeProvider>(context);
-
+    QualityProvider qp = Provider.of<QualityProvider>(context);
+    dropdown = options[qp.quality];
     // function to toggle circle animation
     changeThemeMode(bool theme) {
       if (!theme) {
@@ -81,6 +85,41 @@ class _SettingsState extends State<Settings>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text(
+                    'Quick download quality',
+                    style: GoogleFonts.varelaRound(
+                        color: tp.aux6,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15),
+                  ),
+                  DropdownButton<String>(
+                    isExpanded: false,
+                    underline: Container(),
+                    items: options.map((e){
+                    return  DropdownMenuItem<String>(
+                      value: e,
+                      child: Text(e,style: GoogleFonts.varelaRound(
+                          color: tp.aux6,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 13),),
+                    );
+                  }).toList(),
+                  onChanged: (String newitem) {
+                    qp.changeQuality(options.indexOf(newitem));
+                    setState(() {
+                      this.dropdown = newitem;
+                    });
+                  },
+                  value: dropdown,
+              ),
+        ],),
+              SizedBox(
+                height:25,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text(
                     'Dark Mode',
                     style: GoogleFonts.varelaRound(
                         color: tp.aux6,
@@ -96,7 +135,7 @@ class _SettingsState extends State<Settings>
                     },
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
