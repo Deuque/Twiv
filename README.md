@@ -1,6 +1,6 @@
 # twiv
 
-A twitter video downloader application.
+A twitter video downloader application with background download notification.
 
 ## Getting Started
 
@@ -14,3 +14,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+<br/>
+<br/>
+<img src="images3/t1.jpeg" height="420"/>
+<img src="images3/t2.jpeg" height="420"/>
+<img src="images3/t3.jpeg" height="420"/>
+<img src="images3/t4.jpeg" height="420"/>
+<img src="images3/t5.jpeg" height="420"/>
