@@ -13,10 +13,10 @@ import 'dart:convert';
 class ApiService {
 //  https://twitter.com/Kbarbiie2/status/1292529908757999616?s=20
 
-  static String consumerApiKey = "abc";
-  static String consumerApiSecret = "abc";
-  static String accessToken = "abc";
-  static String accessTokenSecret = "abc";
+  static String consumerApiKey = "QHtSqvtg3ZqRJ0DNDU2ps9S1X";
+  static String consumerApiSecret = "C3DTBh71fvIdfuWVtoEpcIcTuLTB0fzD4xd3nJ9fH8QtxxXnQr";
+  static String accessToken = "1085589956817575937-AfD05rDbrEZUn4U3Qx0PWzmXJjMoj6";
+  static String accessTokenSecret = "D7EQtXQ0wM2Af1rkSFRRAysaxon4bB6Wv2hnrso2F62ye";
 
   // Creating the twitterApi Object with the secret and public keys
   // These keys are generated from the twitter developer page
@@ -48,7 +48,7 @@ class ApiService {
      try{
        rurl = url.substring(url.lastIndexOf('/')+1, url.indexOf('?'));
      }catch(e){
-       apiResponse = new ApiResponse(data: 'null',error: false,errMessage: '');
+       apiResponse = new ApiResponse(data: null,error: false,errMessage: '');
        return apiResponse;
      }
      
@@ -60,6 +60,8 @@ class ApiService {
        // The options for the request
        options: {
          "id": rurl,
+         "trim_user": "true",
+         "tweet_mode": "extended",
        },
      );
      var res = await twitterRequest;
@@ -89,7 +91,7 @@ class ApiService {
        }
        apiResponse = new ApiResponse(data: download_url,error: false,errMessage: '');
      }else{
-       apiResponse = new ApiResponse(data: download_url,error: true,errMessage: 'An error occurred');
+       apiResponse = new ApiResponse(data: download_url,error: true,errMessage: download_url);
      }
 
 

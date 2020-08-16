@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import 'media_item.dart';
@@ -48,7 +49,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
   var pr;
 
   getPath() async {
-    path = await localPath;
+    path = await initDownloadsDirectoryState();
     setState(() {});
   }
 
@@ -108,7 +109,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
         url: url,
         fileName: '${DateTime.now().millisecondsSinceEpoch}$ext',
         savedDir: path,
-        openFileFromNotification: false,
+        openFileFromNotification: true,
         showNotification: true);
 
     final tasks = await FlutterDownloader.loadTasks();
@@ -161,11 +162,12 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
               clipboarContent.text.contains('https://twitter.com/')) {
             prevText = clipboarContent.text + ' $id';
             mcontrol.text = prevText;
-            if (initial) {
-              initial = false;
-            } else {
-              showNotification();
-            }
+//            if (initial) {
+//              initial = false;
+//            } else {
+//              showNotification();
+//            }
+            showNotification();
           }
         });
       },
@@ -180,7 +182,11 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
       });
 
       if (result == 'downloads') {
+        if(!await Permission.storage.request().isGranted){
+          return;
+        }
         await ApiService.resolveUrl(mcontrol.text, quality).then((value) {
+
           if (value.error) {
             Fluttertoast.showToast(
                 msg: value.errMessage, toastLength: Toast.LENGTH_LONG);
@@ -200,8 +206,13 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
     }
   }
 
+  permissionHandler() async{
+    await Permission.storage.request();
+  }
+
   @override
   void initState() {
+    permissionHandler();
     getPath();
 //    initDownloader();
 //    initListeners();
@@ -214,7 +225,6 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: new Duration(seconds: 1),
     );
-
   }
 
   @override
@@ -222,7 +232,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
     ThemeProvider tp = Provider.of<ThemeProvider>(context);
     QualityProvider qp = Provider.of<QualityProvider>(context);
     quality = qp.quality;
-    double tbh = 180;
+    double tbh = 185;
     pr = getDialog(context);
     void showToast(text,isloader, {snackaction}) {
       skey.currentState.showSnackBar(
@@ -236,9 +246,9 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
              Visibility(
                visible: isloader,
                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 10),
-                  height: 40,
-                  width: 40,
+                  margin: EdgeInsets.symmetric(horizontal: 5),
+                  height: 30,
+                  width: 30,
                   child: Center(
                       child: Image.asset(
                         'assets/loading.gif',
@@ -247,13 +257,15 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
                       )),
                 ),
              ),
-              Text(
-                text,
-                textAlign: TextAlign.start,
-                style: GoogleFonts.varelaRound(
-                    color: Colors.white.withOpacity(.85),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 15),
+              Flexible(
+                child: Text(
+                  text,
+                  textAlign: TextAlign.start,
+                  style: GoogleFonts.varelaRound(
+                      color: Colors.white.withOpacity(.85),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15),
+                ),
               ),
             ],
           ),
@@ -270,6 +282,11 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
       pr.hide();
     }
     downloadClick(String text) async{
+      if(!await Permission.storage.request().isGranted){
+        showSnackBar(
+            'Permissions not granted');
+        return;
+      }
       if (text.isNotEmpty) {
 
         await ApiService.resolveUrl(
@@ -277,17 +294,19 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
             .then((value) {
           if (value.error) {
             showSnackBar(value.errMessage);
+            showNotification();
           } else if (value.data == 'null') {
             showSnackBar(
                 'Unable to retrieve data');
           } else {
             showSnackBar(
-                'Downloading, Check notifications...',isloader: true);
+                'Downloading, Check notifications',isloader: true);
             downloadFile(value.data);
           }
         });
       }
     }
+
     return Scaffold(
       key: skey,
       body: NestedScrollView(
@@ -304,11 +323,11 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
                     Stack(
                   children: <Widget>[
                     Container(
-                      height: tbh - 25,
+                      height: tbh - 30,
                       width: double.infinity,
                       child: ClipRRect(
                         borderRadius:
-                            BorderRadius.vertical(bottom: Radius.circular(23)),
+                            BorderRadius.vertical(bottom: Radius.circular(30)),
                         child: Image.asset(
                           'assets/bg2.png',
                           fit: BoxFit.cover,
@@ -335,11 +354,11 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
                                     fontSize: 28),
                               ),
                               Text(
-                                'twitter video downloader',
+                                'Download twitter videos',
                                 style: GoogleFonts.varelaRound(
                                     color: Colors.white70,
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 17),
+                                    fontSize: 15),
                               ),
                             ],
                           ),
@@ -446,6 +465,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
                       downloadAction: downloadClick,
                       quality: quality,
                       onSaved: (value) => url = value,
+                      mcontrol: mcontrol,
                     )
                   ],
                 ),
@@ -499,6 +519,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
                     modifiedList.sort((a, b) =>
                         b.lastModifiedSync().compareTo(a.lastModifiedSync()));
                     return ListView(
+                      padding: EdgeInsets.only(top: 7),
                       children: <Widget>[
                         for (final item in modifiedList) MediaItem(file: item,onDelete: (){
                           setState(() {
@@ -627,20 +648,21 @@ class SearchBar extends StatefulWidget {
   final downloadAction;
   final quality;
   final onSaved;
+  final mcontrol;
 
-  const SearchBar({Key key,  this.downloadAction,this.quality,this.onSaved}) : super(key: key);
+  const SearchBar({Key key,  this.downloadAction,this.quality,this.onSaved,this.mcontrol}) : super(key: key);
   @override
   _SearchBarState createState() => _SearchBarState();
 }
 
 class _SearchBarState extends State<SearchBar> {
-  TextEditingController mcontrol = new TextEditingController();
+//  TextEditingController mcontrol = new TextEditingController();
   bool istyping=false;
   @override
   void initState() {
     super.initState();
-    mcontrol.addListener(() {
-      String val = mcontrol.text;
+    widget.mcontrol.addListener(() {
+      String val = widget.mcontrol.text;
       if (val.isEmpty && istyping) {
         setState(() {
           istyping = false;
@@ -674,7 +696,7 @@ class _SearchBarState extends State<SearchBar> {
             Expanded(
               child: TextFormField(
                 keyboardType: TextInputType.text,
-                controller: mcontrol,
+                controller: widget.mcontrol,
                 maxLines: 1,
                 textAlign: TextAlign.start,
                 decoration: InputDecoration(
@@ -703,7 +725,7 @@ class _SearchBarState extends State<SearchBar> {
             Visibility(
               visible: istyping,
               child: InkWell(
-                onTap: () => mcontrol.clear(),
+                onTap: () => widget.mcontrol.clear(),
                 child: Padding(
                   padding: const EdgeInsets.only(
                       left: 3.0, top: 5, right: 7, bottom: 5),
@@ -720,7 +742,7 @@ class _SearchBarState extends State<SearchBar> {
               width: 50,
               child: FlatButton(
                   onPressed: () async {
-                   widget.downloadAction(mcontrol.text);
+                   widget.downloadAction(widget.mcontrol.text);
                   },
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.horizontal(

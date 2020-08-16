@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -114,3 +116,19 @@ Future<String> get localPath async {
 
   return directory.path+'/media';
 }
+Future<String> initDownloadsDirectoryState() async {
+  Directory downloadsDirectory;
+  // Platform messages may fail, so we use a try/catch PlatformException.
+  try {
+    downloadsDirectory = await DownloadsPathProvider.downloadsDirectory;
+  } on PlatformException {
+    print('Could not get the downloads directory');
+  }
+  final savedDir = Directory(downloadsDirectory.path+'/Twiv');
+  bool hasExisted = await savedDir.exists();
+  if (!hasExisted) {
+    savedDir.create();
+  }
+
+  return savedDir.path;
+      }

@@ -7,6 +7,7 @@ import 'package:Twiv/services/theme_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -23,8 +24,9 @@ class MediaItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeProvider tp = Provider.of<ThemeProvider>(context);
+    double dwidth = MediaQuery.of(context).size.width;
     double height = 80;
-    double width = 95;
+    double width = dwidth * 0.22;
     double leftCurve = 8.5;
     if (file.extension == 'mp4' || file.extension == 'mkv') {
       thumbnailRequest = new ThumbnailRequest(
@@ -109,72 +111,77 @@ class MediaItem extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Container(
-                width: width,
-                child: Stack(
-                  children: <Widget>[
-                    SizedBox(
-                        height: height,
-                        width: width,
-                        child: thumbnailRequest == null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.horizontal(
-                                    left: Radius.circular(leftCurve)),
-                                child: Image.file(
-                                  file,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : FutureBuilder<ThumbnailResult>(
-                                future: genThumbnail(thumbnailRequest),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Center(
-                                        child: Image.asset(
-                                      'assets/loading.gif',
-                                      height: 30,
-                                      width: 30,
-                                    ));
-                                  }
-                                  if (snapshot.hasData) {
-                                    final _image = snapshot.data.image;
+              GestureDetector(
+                onTap: ()async{
+                  print('test ${file.path}');
+                  await OpenFile.open(file.path);
+                },
+                child: Container(
+                  width: width,
+                  child: Stack(
+                    children: <Widget>[
+                      SizedBox(
+                          height: height,
+                          width: width,
+                          child: thumbnailRequest == null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.horizontal(
+                                      left: Radius.circular(leftCurve)),
+                                  child: Image.file(
+                                    file,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : FutureBuilder<ThumbnailResult>(
+                                  future: genThumbnail(thumbnailRequest),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Center(
+                                          child: Image.asset(
+                                        'assets/loading.gif',
+                                        height: 30,
+                                        width: 30,
+                                      ));
+                                    }
+                                    if (snapshot.hasData) {
+                                      final _image = snapshot.data.image;
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.horizontal(
+                                            left: Radius.circular(leftCurve)),
+                                        child: _image,
+                                      );
+                                    }
 
                                     return ClipRRect(
                                       borderRadius: BorderRadius.horizontal(
                                           left: Radius.circular(leftCurve)),
-                                      child: _image,
+                                      child: Image.asset(
+                                        'assets/bg2.png',
+                                        fit: BoxFit.cover,
+                                      ),
                                     );
-                                  }
-
-                                  return ClipRRect(
-                                    borderRadius: BorderRadius.horizontal(
-                                        left: Radius.circular(leftCurve)),
-                                    child: Image.asset(
-                                      'assets/bg2.png',
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                },
-                              )),
-                    type == 'video' || type == 'gif'
-                        ? Center(
-                            child: SizedBox(
-                            height: 30,
-                            width: 30,
-                            child: Material(
-                              borderRadius: BorderRadius.circular(20),
-                              color: mytrans,
-                              child: Icon(
-                                type == 'video' ? Icons.play_arrow : Icons.gif,
-                                color: Colors.white.withOpacity(0.9),
-                                size: 14,
+                                  },
+                                )),
+                      type == 'video' || type == 'gif'
+                          ? Center(
+                              child: SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: Material(
+                                borderRadius: BorderRadius.circular(20),
+                                color: mytrans,
+                                child: Icon(
+                                  type == 'video' ? Icons.play_arrow : Icons.gif,
+                                  color: Colors.white.withOpacity(0.9),
+                                  size: 14,
+                                ),
                               ),
-                            ),
-                          ))
-                        : Container()
-                  ],
+                            ))
+                          : Container()
+                    ],
+                  ),
                 ),
               ),
               Expanded(
@@ -186,7 +193,7 @@ class MediaItem extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         file.name,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.varelaRound(
                             color: tp.aux4,
@@ -197,7 +204,9 @@ class MediaItem extends StatelessWidget {
                         height: 8,
                       ),
                       Text(
-                        'Modified: ${dateFormatter(file.lastModifiedSync().toString())}',
+                        'Date: ${dateFormatter(file.lastModifiedSync().toString())}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.varelaRound(
                             color: tp.aux42,
                             fontWeight: FontWeight.w400,
@@ -221,6 +230,8 @@ class MediaItem extends StatelessWidget {
                             }
                             return Text(
                               'Size: $size',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.varelaRound(
                                   color: tp.aux42,
                                   fontWeight: FontWeight.w400,
