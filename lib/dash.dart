@@ -8,6 +8,7 @@ import 'package:Twiv/services/auxilliary.dart';
 import 'package:Twiv/services/quality_provider.dart';
 import 'package:Twiv/services/theme_provider.dart';
 import 'package:Twiv/settings.dart';
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -17,6 +18,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:sticky_headers/sticky_headers/widget.dart';
 
 import 'media_item.dart';
 
@@ -105,6 +107,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
     } catch (e) {
       ext = url.substring(url.lastIndexOf('.'));
     }
+
     taskId = await FlutterDownloader.enqueue(
         url: url,
         fileName: '${DateTime.now().millisecondsSinceEpoch}$ext',
@@ -132,6 +135,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
           // E.g. at this place you might want to use Navigator to launch a new page and pass the shared data
         });
       }
+      return Future.value('');
     });
 
     // Case 2: App is started by the intent:
@@ -232,7 +236,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
     ThemeProvider tp = Provider.of<ThemeProvider>(context);
     QualityProvider qp = Provider.of<QualityProvider>(context);
     quality = qp.quality;
-    double tbh = 185;
+    double tbh = MediaQuery.of(context).size.height*.25;
     pr = getDialog(context);
     void showToast(text,isloader, {snackaction}) {
       skey.currentState.showSnackBar(
@@ -299,6 +303,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
             showSnackBar(
                 'Unable to retrieve data');
           } else {
+           // tcontrol.text = value.data;
             showSnackBar(
                 'Downloading, Check notifications',isloader: true);
             downloadFile(value.data);
@@ -337,7 +342,7 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
                     Positioned(
                       left: 23,
                       right: 23,
-                      top: 38,
+                      top:48,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -485,91 +490,93 @@ class _MyState extends State<Dash> with SingleTickerProviderStateMixin {
                   },
               animationController: animationController),
               pinned: true,
+              floating: true,
             ),
           ];
         },
         body: path == null
             ? Container(
+          height: 80,
+          width: 80,
+          child: Center(
+              child: Image.asset(
+                'assets/loading.gif',
+                height: 30,
+                width: 30,
+              )),
+        )
+            : FutureBuilder<List<File>>(
+          future: filesInDirectory(Directory(path)),
+          builder: (_, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
                 height: 80,
                 width: 80,
                 child: Center(
                     child: Image.asset(
-                  'assets/loading.gif',
-                  height: 30,
-                  width: 30,
-                )),
-              )
-            : FutureBuilder<List<File>>(
-                future: filesInDirectory(Directory(path)),
-                builder: (_, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(
-                      height: 80,
-                      width: 80,
-                      child: Center(
-                          child: Image.asset(
-                        'assets/loading.gif',
-                        height: 30,
-                        width: 30,
-                      )),
-                    );
-                  }
-                  if (snapshot.hasData&&snapshot.data.isNotEmpty) {
-                    List<File> modifiedList = snapshot.data;
-                    modifiedList.sort((a, b) =>
-                        b.lastModifiedSync().compareTo(a.lastModifiedSync()));
-                    return ListView(
-                      padding: EdgeInsets.only(top: 7),
-                      children: <Widget>[
-                        for (final item in modifiedList) MediaItem(file: item,onDelete: (){
-                          setState(() {
-
-                          });
-                        },)
-                      ],
-                    );
-                  }
-                  return Container(
-                    height: 10,
-                    width: 10,
-                    child: Center(
-                        child: Image.asset(
-                      'assets/empty.png',
-                      color: tp.aux6.withOpacity(0.2),
-                      height: 40,
-                      width: 40,
+                      'assets/loading.gif',
+                      height: 30,
+                      width: 30,
                     )),
-                  );
-                },
-              ),
+              );
+            }
+            if (snapshot.hasData&&snapshot.data.isNotEmpty) {
+              List<File> modifiedList = snapshot.data;
+              modifiedList.sort((a, b) =>
+                  b.lastModifiedSync().compareTo(a.lastModifiedSync()));
+              return ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.only(top: 7),
+                children: <Widget>[
+                  for (final item in modifiedList) MediaItem(file: item,onDelete: (){
+                    setState(() {
 
-//      body:  TextFormField(
-//        keyboardType: TextInputType.text,
-//        controller: tcontrol,
-//        maxLines: 80,
-//        textAlign: TextAlign.start,
-//        decoration: InputDecoration(
-//          contentPadding:
-//          EdgeInsets.only(left: 10, right: 6),
-//          enabledBorder: InputBorder.none,
-//          focusedBorder: InputBorder.none,
-//          hintText: 'json body here',
-//          hintStyle: GoogleFonts.sourceSansPro(
-//              fontSize: 16,
-//              fontWeight: FontWeight.w400,
-//              color: tp.aux6),
-//        ),
-//        style: GoogleFonts.sourceSansPro(
-//            fontSize: 16,
-//            fontWeight: FontWeight.w400,
-//            color: tp.aux6),
-//        onSaved: (value) => url = value,
-//        validator: (String value) {
-//          if (value.isEmpty) {
-//            return 'Field required';
-//          }
-//        },
-//      ),
+                    });
+                  },)
+                ],
+              );
+            }
+            return Container(
+              height: 10,
+              width: 10,
+              child: Center(
+                  child: Image.asset(
+                    'assets/empty.png',
+                    color: tp.aux6.withOpacity(0.2),
+                    height: 40,
+                    width: 40,
+                  )),
+            );
+          },
+        ),
+
+     // body:  TextFormField(
+     //   keyboardType: TextInputType.text,
+     //   controller: tcontrol,
+     //   maxLines: 80,
+     //   textAlign: TextAlign.start,
+     //   decoration: InputDecoration(
+     //     contentPadding:
+     //     EdgeInsets.only(left: 10, right: 6),
+     //     enabledBorder: InputBorder.none,
+     //     focusedBorder: InputBorder.none,
+     //     hintText: 'json body here',
+     //     hintStyle: GoogleFonts.sourceSansPro(
+     //         fontSize: 16,
+     //         fontWeight: FontWeight.w400,
+     //         color: tp.aux6),
+     //   ),
+     //   style: GoogleFonts.sourceSansPro(
+     //       fontSize: 16,
+     //       fontWeight: FontWeight.w400,
+     //       color: tp.aux6),
+     //   onSaved: (value) => url = value,
+     //   validator: (String value) {
+     //     if (value.isEmpty) {
+     //       return 'Field required';
+     //     }
+     //   },
+     // ),
       ),
     );
   }
@@ -583,10 +590,10 @@ class _SliverTextDelegate extends SliverPersistentHeaderDelegate {
   final AnimationController animationController;
 
   @override
-  double get minExtent => 75;
+  double get minExtent => 85;
 
   @override
-  double get maxExtent => 75;
+  double get maxExtent => 85;
 
   @override
   Widget build(
@@ -655,6 +662,9 @@ class SearchBar extends StatefulWidget {
   _SearchBarState createState() => _SearchBarState();
 }
 
+
+
+
 class _SearchBarState extends State<SearchBar> {
 //  TextEditingController mcontrol = new TextEditingController();
   bool istyping=false;
@@ -679,10 +689,10 @@ class _SearchBarState extends State<SearchBar> {
   @override
   Widget build(BuildContext context) {
     ThemeProvider tp = Provider.of<ThemeProvider>(context);
-    double tbh = 180;
+    double tbh = MediaQuery.of(context).size.height*.25;
     return Positioned(
       left: 28,
-      top: tbh - 48,
+      top: tbh - 54,
       right: 28,
       child: Container(
         height: 48,
