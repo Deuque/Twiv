@@ -1,6 +1,8 @@
 # twiv
 
-A twitter video downloader application with background download notification.
+A twitter video downloader application with background download notification.<br/>
+Playstore link: https://play.google.com/store/apps/details?id=dcinspirations.com.twiv
+
 
 ## Getting Started
 
